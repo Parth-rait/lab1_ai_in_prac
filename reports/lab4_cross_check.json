@@ -1,0 +1,59 @@
+{
+  "n": 10,
+  "pairs": [
+    {
+      "id": "Q01",
+      "small_judge": 1,
+      "large_judge": 1
+    },
+    {
+      "id": "Q02",
+      "small_judge": 1,
+      "large_judge": 1
+    },
+    {
+      "id": "Q03",
+      "small_judge": 1,
+      "large_judge": 1
+    },
+    {
+      "id": "Q04",
+      "small_judge": 1,
+      "large_judge": 0
+    },
+    {
+      "id": "Q05",
+      "small_judge": 1,
+      "large_judge": 1
+    },
+    {
+      "id": "Q06",
+      "small_judge": 1,
+      "large_judge": 1
+    },
+    {
+      "id": "Q07",
+      "small_judge": 1,
+      "large_judge": 1
+    },
+    {
+      "id": "Q08",
+      "small_judge": 1,
+      "large_judge": 1
+    },
+    {
+      "id": "Q09",
+      "small_judge": 1,
+      "large_judge": 1
+    },
+    {
+      "id": "Q10",
+      "small_judge": 1,
+      "large_judge": 1
+    }
+  ],
+  "raw_agreement": 0.9,
+  "small_mean": 1.0,
+  "large_mean": 0.9,
+  "self_preference_gap": 0.09999999999999998
+}

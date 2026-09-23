@@ -1,0 +1,12 @@
+{
+  "faithfulness": {
+    "raw_agreement": 1.0,
+    "cohens_kappa": 1.0,
+    "n": 20.0
+  },
+  "correctness": {
+    "raw_agreement": 0.7894736842105263,
+    "cohens_kappa": 0.518987341772152,
+    "n": 19.0
+  }
+}
