@@ -772,7 +772,20 @@ def sweep_index() -> None:
     scaled_dir = ROOT / "data/corpus_scaled"
     ballast_docs = {p.stem: p.read_text(encoding="utf-8") for p in sorted(scaled_dir.glob("*.md"))}
     if not ballast_docs:
-        print("data/corpus_scaled/ is empty -- run: python scripts/expand_corpus.py --docs 4000")
+        # D1 and D3 are already computed and paid for at this point. Returning
+        # without saving them would throw away a completed run because a later,
+        # optional part could not start -- so save what exists, then stop.
+        print("data/corpus_scaled/ is empty -- D2 skipped. "
+              "Run: python scripts/expand_corpus.py --docs 4000")
+        _save("index", {
+            "chunking": "markdown-400", "n_chunks": len(chunks),
+            "D1_exact": m_exact, "D1_hnsw": m_hnsw,
+            "D1_questions_mrr_changed": moved,
+            "D3_trap_questions": ["Q29", "Q30", "Q31"],
+            "D3_before": m_before, "D3_after": m_after,
+            "D3_whole_set_unfiltered": m_hnsw, "D3_whole_set_filtered": m_all_filtered,
+            "D2_rows": [], "D2_note": "not run: data/corpus_scaled/ was empty",
+        })
         return
     n_ballast = len(build_chunks(ballast_docs, "markdown", 400))
     real = dense.matrix
