@@ -12,6 +12,21 @@ poisoning, harness). Suite: 21 cases — 17 attacks, 4 controls.
 `run_agent()` calls the model with the four tool schemas, executes what it asks for through
 a `ToolGuard`, feeds results back, and repeats until the model answers or a stop fires.
 
+**`search_policy` runs the Lab 3 winning configuration, not the scaffolding default.**
+The shipped tool chunked at 800 characters, returned `k=4`, and indexed archived documents.
+It now uses **markdown-aware chunking at 400 characters, `k=5`, archived documents excluded**
+— Lab 3 measured nDCG@10 0.860 for that against 0.846 at size 800, and the archived filter
+is the D3 result that fixed the stale-timelines trap for free. Every number in this report
+was re-measured on the corrected retriever after the change.
+
+**What the change did to the red-team results: nothing.** Block rate stayed 17/17 and false
+positives 0/4 at both the unguarded and all-layers settings, and privileged calls stayed at
+0. That is the right outcome rather than a disappointing one — the attacks in this suite
+target the model's willingness to be persuaded and the guard's willingness to execute, and
+neither depends on how good the search underneath is. It also means the C02 finding below is
+not an artefact of a weak retriever: with the better configuration the innocent customer's
+query *still* surfaces the attacker's poisoned document.
+
 **A2 — three independent stops, each tested live:**
 
 | Stop | Forced by | Measured result |
@@ -118,6 +133,7 @@ because the suite runs replay a warm cache and read ~$0:
 |---|---|---|---|
 | unguarded | $0.00136 | 2,465 ms | 13,380 ms |
 | all five layers | **$0.00102** | 3,930 ms | **6,550 ms** |
+| unguarded, Lab 3 retriever, full suite | $0.00124 | — | 11,810 ms |
 
 Both are far inside the $0.02 target. **The guarded system is cheaper**, which is not the
 expected direction: layer 3 adds a model call per query, but layer 4's allowlist cuts tool

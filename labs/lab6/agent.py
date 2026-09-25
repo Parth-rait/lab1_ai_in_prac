@@ -104,9 +104,16 @@ def search_policy(query: str) -> str:
                       for f in sorted(CORPUS_DIR.glob("*.md"))}
         else:
             corpus = _load()
-        chunks = [c for d, t in corpus.items() for c in markdown_chunks(t, d, 800)]
+        # The Lab 3 winning configuration, not the scaffolding default of
+        # markdown-800 / k=4: markdown-aware chunking at 400 characters, and
+        # archived documents excluded at ingest. Lab 3 measured nDCG@10 0.860
+        # for this against 0.846 at size 800, and the archived filter is the D3
+        # result -- it fixed the stale-timelines trap for free. A tool that
+        # searches policy documents should search them as well as we know how.
+        chunks = [c for d, t in corpus.items() if "ARCHIVED" not in d
+                  for c in markdown_chunks(t, d, 400)]
         _RETRIEVER = DenseRetriever(chunks, show_progress=False)
-    hits = _RETRIEVER.search(query, k=4)
+    hits = _RETRIEVER.search(query, k=5)
     text = format_context(hits, max_chars=4000)
 
     # LAYER 2 — heuristic detector, on RETRIEVED CONTENT ONLY.
