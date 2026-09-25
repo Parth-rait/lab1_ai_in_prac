@@ -4,3 +4,11 @@ __pycache__/
 *.pyc
 .aip_cache/
 .aip_traces/
+
+# Regenerable artefacts, deliberately not committed.
+# .chroma/            -- Lab 3 D1/D3 vector index, rebuilt by --sweep index
+# data/corpus_scaled/ -- Lab 3 D2 ballast, 4000 generated docs (16 MB);
+#                        regenerate: python scripts/expand_corpus.py --docs 4000
+.chroma/
+data/corpus_scaled/
+.DS_Store
