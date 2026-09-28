@@ -234,3 +234,8 @@ small-to-big (p95 8.9 s, $0.0123/query, both over the gate).
 1. ✅ Commit + P1 · ✅ P2/P3 (v1: refuted, committed `8934a7f`)
 2. **P2′ → P3′ → decision → P4′** (live, today)
 3. A1–A4 → B1a → C1/C2 · 4. B1b/B1c → B2/B3 → B4 · 5. D1–D3 · 6. C3/C4 · 7. E1–E7
+
+**P3′ result (29 Sep, `reports/lab7_p3_v3prompt.json`): v3 ships.** Precision 0.833 (5/6),
+recall 1.000, correctness 0.923 (≥ 0.919, thin), Q36 still refused → all four conditions
+met. Cost: correctness −0.026 vs v2 (Q04, Q20, Q45 down to hedged partials; Q29 up). The
+one remaining false refusal is Q44 (retrieval). **No further prompt work; on to A.**

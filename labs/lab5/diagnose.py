@@ -175,7 +175,7 @@ def main() -> None:
                     help="Part D: run the fix and compare against reports/lab4.json")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--variant", default="expand", choices=["expand", "single"])
-    ap.add_argument("--prompt", default="v2", choices=["v1", "v2"],
+    ap.add_argument("--prompt", default="v2", choices=["v1", "v2", "v3"],
                     help="answer prompt wording (labs/lab4/rag.py PROMPTS)")
     ap.add_argument("--baseline", default="reports/lab4.json",
                     help="--before-after: saved run to compare against")
@@ -415,7 +415,7 @@ def run_before_after(save: str = "reports/lab5_before_after.json",
                 "faithfulness": judge_faithfulness(a.text, ctx),
                 "correctness": judge_correctness(q["question"], a.text, q["gold_answer"]),
                 "retrieved": [h.doc_id for h in a.hits], "relevant": q["relevant_docs"],
-                "context": ctx, "prompt": prompt,
+                "context": ctx, "prompt": prompt, "partial": a.partial,
             })
             before = v1.get(q["id"], {}).get("correctness")
             after = rows[-1]["correctness"]
@@ -437,6 +437,7 @@ def run_before_after(save: str = "reports/lab5_before_after.json",
             "refusal_recall": len(ok) / len(una) if una else None,
             "refusal_precision": len(ok) / len(ref) if ref else None,
             "refused_total": len(ref), "refused_correctly": len(ok),
+            "partial_declines": sum(1 for r in rs if r.get("partial")),
             "repair_rate": _mean(r["repaired"] for r in rs),
             "latency_p50_ms": _st.median(lat) if lat else None,
             "latency_p95_ms": _p95(lat),

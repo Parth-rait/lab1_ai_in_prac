@@ -135,7 +135,42 @@ summarise the sources. Give figures exactly as the source gives them.
 """
 
 ANSWER_SYSTEM_V2 = ANSWER_SYSTEM
-PROMPTS = {"v1": ANSWER_SYSTEM_V1, "v2": ANSWER_SYSTEM_V2}
+
+# v3 (Lab 7): v2 with rules 4/4a replaced. v1 and v2 both told the model to end
+# a partial answer with the exact refusal sentence, so exact-match detection
+# counted every correct partial answer as a (false) refusal -- refusal
+# precision 0.667 / 0.714 on the Lab 5 retriever. Here a partial answer ends
+# with "The sources do not state ..." instead, the refusal sentence is reserved
+# for "the sources say nothing", and substituting a different quantity is
+# forbidden (it answers a different question). Shape adapted from a
+# classmate's Lab 4 prompt that measured precision 1.000 on the same golden set.
+PARTIAL_MARKER = "The sources do not state"
+_V2_RULE4_START = ANSWER_SYSTEM.index("4. WHEN THE SOURCES")
+_V2_RULE5_START = ANSWER_SYSTEM.index("5. WHEN SOURCES DISAGREE")
+ANSWER_SYSTEM_V3 = (ANSWER_SYSTEM[:_V2_RULE4_START] + f"""\
+4. ANSWER WHAT IS SUPPORTED, DECLINE WHAT IS NOT. Before refusing, check \
+whether the sources answer any part of the question.
+  - Answer the supported part with citations, then say in one sentence which \
+specific part the sources do not state. Shape: "<supported fact> [2]. \
+{PARTIAL_MARKER} <the missing part>." Do not use the refusal sentence in a \
+partial answer, and do not fill the gap.
+  - The part you answer must be about the SAME thing the question asks about. \
+Never substitute a different quantity: if the question asks for a premium and \
+the sources give a sum insured, that is not a partial answer, it is an answer \
+to a different question. Refuse instead.
+  - If the sources confirm something EXISTS (a benefit, a contact channel, an \
+exclusion) but do not give the value or detail asked for, say that it exists, \
+cite it, and say the detail is not stated.
+
+4a. REFUSE ONLY WHEN THE SOURCES SAY NOTHING about the thing the question asks \
+about. Then reply with exactly this sentence and nothing else:
+{REFUSAL}
+Copy it character for character. Do not append a topic to it, do not attach a \
+citation to it, do not apologise, do not add a suggestion.
+
+""" + ANSWER_SYSTEM[_V2_RULE5_START:])
+
+PROMPTS = {"v1": ANSWER_SYSTEM_V1, "v2": ANSWER_SYSTEM_V2, "v3": ANSWER_SYSTEM_V3}
 
 # C4: a stricter variant, used to move the refusal dial. Only rule 4 changes --
 # everything else is identical, so the comparison isolates refusal strictness.
@@ -170,6 +205,8 @@ class Answer:
     repaired: bool = False
     latency_ms: float = 0.0
     n_sources: int = 0
+    # Lab 7: a cited answer that declines part of the question (v3 prompt).
+    partial: bool = False
 
 
 def is_refusal(text: str) -> bool:
@@ -215,6 +252,7 @@ def validate_answer(text: str, n_sources: int, finish_reason: str | None = None)
         "invalid_citations": invalid,
         "n_citations": len(cited),
         "truncated": truncated,
+        "partial": not refused and PARTIAL_MARKER.lower() in text.lower(),
         "reason": reason,
     }
 
@@ -226,6 +264,7 @@ def _build_answer(question: str, text: str, hits: list[Hit], v: dict, *,
         citations_valid=not v["invalid_citations"], invalid_citations=v["invalid_citations"],
         n_citations=v["n_citations"], truncated=v["truncated"],
         repaired=repaired, latency_ms=latency_ms, n_sources=n_sources,
+        partial=v["partial"],
     )
 
 
