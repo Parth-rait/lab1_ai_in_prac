@@ -1,13 +1,29 @@
-# Lab 7 regression gate. Tune these to just below what you actually achieve --
-# a gate set at your current number fails on noise; a gate set far below it
-# never fires. Aim for roughly one standard error of headroom.
+# Lab 7 regression gate. Tuned 29 Sep to the measured pipeline
+# (reports/lab7_gate.json: Lab 5 retriever, prompt v3, SMALL, n = 45).
 #
-# Note that cost and latency have gates too. They regress silently otherwise.
-correctness:        {min: 0.75}
-faithfulness:       {min: 0.90}
-citation_validity:  {min: 0.98}
-refusal_recall:     {min: 0.80}
-refusal_precision:  {min: 0.75}
-hit_rate_at_5:      {min: 0.85}
-cost_per_query_usd: {max: 0.010}
+# Rule: a gate at the measured number fails on noise; far below it never fires.
+# So each quality gate sits about one standard error (SE) below what we measure,
+# EXCEPT where the course's floor is stricter or the sample is too small for an
+# SE to mean anything. Those exceptions are noted.
+#
+#                     measured   SE      gate    why
+correctness:        {min: 0.88}   # 0.923  0.035  0.88    measured - 1 SE (n=39 judged answerable)
+faithfulness:       {min: 0.95}   # 0.978  0.022  0.95    measured - 1 SE
+citation_validity:  {min: 0.98}   # 1.000  -      0.98    code-enforced; one invalid of 45 = 0.978 fails
+refusal_recall:     {min: 0.80}   # 1.000  -      0.80    n=5: allows one miss, never two. SE meaningless
+refusal_precision:  {min: 0.75}   # 0.833  ~0.15  0.75    n=6 refusals: measured - 1 SE (0.68) would be
+                                  #                        below the brief's 0.75 floor, so the floor wins
+hit_rate_at_5:      {min: 0.95}   # 0.976  0.024  0.95    measured - 1 SE (n=42 with relevant docs)
+# Cost: recorded token counts priced at list rates (a replay costs $0, so the
+# gate cannot read spend). $0.00046/query measured, max single query $0.00063.
+# The brief's $0.010 is 20x headroom and would never fire; 0.0010 catches a
+# tier change to MAIN or a doubled context.
+cost_per_query_usd: {max: 0.0010}
+# Latency: the SLO itself. Measured p95 1,783 ms live (29 Sep), but the same
+# configuration has measured 2,300 and 8,574 ms an hour apart on this key, so
+# a tighter gate would fail on the provider, not on us. Read from the live run
+# and only while the replay reproduces it exactly (see gate.py).
 p95_latency_ms:     {max: 6000}
+# Every golden question must replay. A question missing from the cache was
+# never measured, and dropping it silently would inflate every mean.
+replay_coverage:    {min: 1.0}

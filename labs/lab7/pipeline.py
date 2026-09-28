@@ -109,6 +109,10 @@ class Result:
     latency_ms: float = 0.0
     cache_layer: str = ""      # "" | "exact" | "semantic" (answer cache, B1)
     cache_similarity: float = 0.0
+    context: str = ""          # exactly what the generator saw; the gate's judge reads it
+    # What these calls cost at list price even when replayed from aip.cache
+    # (cost_usd is 0 for a replay). The gate's cost metric reads this.
+    list_price_usd: float = 0.0
 
 
 class Pipeline:
@@ -144,6 +148,7 @@ class Pipeline:
                use_cache: bool = True) -> Result:
         """The non-streaming path. The gate calls this with use_cache=False:
         it measures the pipeline, not the answer cache."""
+        from aip.retrieval import format_context
         from labs.lab4.rag import answer_question
         from labs.lab6.agent import filter_output
 
@@ -181,7 +186,9 @@ class Pipeline:
             cost_usd=sum(u.cost_usd for u in usage), llm_calls=len(usage),
             llm_cached=bool(usage) and all(u.cached for u in usage),
             repaired=a.repaired, guards=guards,
-            latency_ms=(time.perf_counter() - t0) * 1000,
+            latency_ms=(time.perf_counter() - t0) * 1000, context=format_context(a.hits),
+            list_price_usd=sum(cost.price_of(u.model, u.prompt_tokens, u.completion_tokens)
+                               for u in usage),
         )
         if use_cache:
             self.cache.put(q, final_k, result)
@@ -302,7 +309,8 @@ class Pipeline:
             retrieved_doc_ids=[h.doc_id for h in hits], cost_usd=usd, llm_calls=1,
             llm_cached=False, repaired=False,
             guards=guards + [f"output:{x}" for x in sorted(set(fired + f2))],
-            latency_ms=(time.perf_counter() - t0) * 1000)
+            latency_ms=(time.perf_counter() - t0) * 1000, context=context,
+            list_price_usd=usd)
         self.cache.put(q, final_k, result)
         yield from self._final_events(result, t0, ttft_ms=ttft_ms)
 
