@@ -10,6 +10,7 @@ calls exactly the same code.
 """
 from __future__ import annotations
 
+import json
 import os
 import statistics
 import sys
@@ -23,6 +24,8 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from sse_starlette.sse import EventSourceResponse
+from starlette.concurrency import iterate_in_threadpool
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -59,7 +62,7 @@ _LOCK = threading.Lock()
 _STATUS: Counter = Counter()
 _LAT_MS: list[float] = []
 _OUTCOME: Counter = Counter()      # answered / partial / refused / guarded
-_CACHED = Counter()                # hit / miss (response cache)
+_TTFT_MS: list[float] = []         # streaming only
 
 
 def _count(status: int, latency_ms: float | None = None) -> None:
@@ -91,7 +94,8 @@ class AskResponse(BaseModel):
     sources: list[Citation]
     latency_ms: float
     cost_usd: float
-    cached: bool
+    cached: bool               # served from the answer cache (exact or semantic)
+    cache_layer: str           # "" | "exact" | "semantic"
     trace_id: str
     guards: list[str]
     mode: str
@@ -117,7 +121,8 @@ def ask(req: AskRequest) -> AskResponse:
                 r = pipeline().answer(req.question, final_k=req.top_k)
                 out = {"answer": r.answer, "refused": r.refused, "partial": r.partial,
                        "citations": r.citations, "sources": r.sources,
-                       "cost_usd": r.cost_usd, "cached": r.cached, "guards": r.guards}
+                       "cost_usd": r.cost_usd, "cached": bool(r.cache_layer),
+                       "cache_layer": r.cache_layer, "guards": r.guards}
             span.update(refused=out["refused"], partial=out["partial"],
                         cost_usd=out["cost_usd"], cached=out["cached"],
                         guards=out["guards"])
@@ -149,7 +154,6 @@ def ask(req: AskRequest) -> AskResponse:
         _OUTCOME["refused" if out["refused"] else "partial" if out["partial"] else "answered"] += 1
         if out["guards"]:
             _OUTCOME["guard_fired"] += 1
-        _CACHED["hit" if out["cached"] else "miss"] += 1
     return AskResponse(**out, latency_ms=round(latency_ms, 1), trace_id=trace_id,
                        mode=req.mode)
 
@@ -172,7 +176,7 @@ def _ask_tools(question: str) -> dict:
     from labs.lab4.rag import is_refusal
     return {"answer": text, "refused": is_refusal(text), "partial": False,
             "citations": [], "sources": [], "cost_usd": res.get("cost_usd", 0.0),
-            "cached": False, "guards": [f"flag:{f}" for f in res.get("flags", [])]
+            "cached": False, "cache_layer": "", "guards": [f"flag:{f}" for f in res.get("flags", [])]
             + [f"stopped:{res['stopped_because']}"]}
 
 
@@ -200,18 +204,15 @@ def metrics() -> dict:
         ok = _STATUS[200]
         total = sum(_STATUS.values())
 
-        def pct(p: float) -> float:
-            return round(lat[min(len(lat) - 1, int(round(p / 100 * (len(lat) - 1))))], 1) \
-                if lat else 0.0
-
         return {
             "requests": total,
             "status_counts": {str(k): v for k, v in sorted(_STATUS.items())},
             "error_rate": round((total - ok) / total, 4) if total else 0.0,
             "outcomes": dict(_OUTCOME),
             "refusal_rate": round(_OUTCOME["refused"] / ok, 4) if ok else 0.0,
-            "cache": dict(_CACHED),
-            "latency_ms": {"p50": pct(50), "p95": pct(95), "p99": pct(99),
+            "answer_cache": pipeline().cache.hit_rates(),
+            "ttft_ms": {"p50": _pct(sorted(_TTFT_MS), 50), "p95": _pct(sorted(_TTFT_MS), 95)},
+            "latency_ms": {"p50": _pct(lat, 50), "p95": _pct(lat, 95), "p99": _pct(lat, 99),
                            "mean": round(statistics.fmean(lat), 1) if lat else 0.0},
             "cost_usd_total": round(b.spent_usd, 6),
             "cost_per_request_usd": round(b.spent_usd / ok, 6) if ok else 0.0,
@@ -219,4 +220,40 @@ def metrics() -> dict:
         }
 
 
-# TODO B2 (step 5): POST /ask/stream with server-sent events.
+def _pct(xs: list[float], p: float) -> float:
+    return round(xs[min(len(xs) - 1, int(round(p / 100 * (len(xs) - 1))))], 1) if xs else 0.0
+
+
+@app.post("/ask/stream")
+async def ask_stream(req: AskRequest):
+    """B2. Server-sent events: meta, token*, [replace], citations, validation,
+    done. The B3 strategy is documented on Pipeline.stream(). Errors after the
+    stream has started cannot change the HTTP status, so they arrive as an
+    `error` event with the same 429/503/500 classification as /ask."""
+    if req.mode != "rag":
+        raise HTTPException(status_code=422, detail="streaming supports mode='rag' only")
+    t0 = time.perf_counter()
+
+    def events():
+        status = 200
+        try:
+            for ev in pipeline().stream(req.question, final_k=req.top_k):
+                if ev["event"] == "done":
+                    with _LOCK:
+                        _TTFT_MS.append(ev["ttft_ms"])
+                        _OUTCOME["streamed"] += 1
+                yield {"event": ev["event"],
+                       "data": json.dumps({k: v for k, v in ev.items() if k != "event"},
+                                          ensure_ascii=False)}
+        except BudgetExceeded as exc:
+            status = 429
+            yield {"event": "error", "data": json.dumps({"status": 429, "detail": str(exc)})}
+        except Exception as exc:                                # noqa: BLE001
+            status = 503 if _is_retryable(exc) or isinstance(exc, cache.CacheMiss) else 500
+            yield {"event": "error",
+                   "data": json.dumps({"status": status, "detail": type(exc).__name__,
+                                       "retry_after_s": RETRY_AFTER_S if status == 503 else None})}
+        finally:
+            _count(status, (time.perf_counter() - t0) * 1000 if status == 200 else None)
+
+    return EventSourceResponse(iterate_in_threadpool(events()))

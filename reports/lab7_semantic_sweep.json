@@ -1,0 +1,540 @@
+{
+  "embed_model": null,
+  "n_paraphrase": 20,
+  "n_near_miss": 20,
+  "n_golden_pairs": 990,
+  "max_wrong_cosine": 0.906438410282135,
+  "lowest_zero_wrong_threshold": 0.91,
+  "sweep": [
+    {
+      "threshold": 0.8,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 10,
+      "golden_cross_wrong_hits": 1
+    },
+    {
+      "threshold": 0.805,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 10,
+      "golden_cross_wrong_hits": 1
+    },
+    {
+      "threshold": 0.81,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 10,
+      "golden_cross_wrong_hits": 1
+    },
+    {
+      "threshold": 0.815,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 10,
+      "golden_cross_wrong_hits": 1
+    },
+    {
+      "threshold": 0.82,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 10,
+      "golden_cross_wrong_hits": 1
+    },
+    {
+      "threshold": 0.825,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 10,
+      "golden_cross_wrong_hits": 1
+    },
+    {
+      "threshold": 0.83,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 10,
+      "golden_cross_wrong_hits": 1
+    },
+    {
+      "threshold": 0.835,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 9,
+      "golden_cross_wrong_hits": 1
+    },
+    {
+      "threshold": 0.84,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 8,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.845,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 8,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.85,
+      "paraphrase_hit_rate": 1.0,
+      "near_miss_wrong_hits": 7,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.855,
+      "paraphrase_hit_rate": 0.95,
+      "near_miss_wrong_hits": 6,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.86,
+      "paraphrase_hit_rate": 0.95,
+      "near_miss_wrong_hits": 6,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.865,
+      "paraphrase_hit_rate": 0.95,
+      "near_miss_wrong_hits": 6,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.87,
+      "paraphrase_hit_rate": 0.95,
+      "near_miss_wrong_hits": 6,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.875,
+      "paraphrase_hit_rate": 0.9,
+      "near_miss_wrong_hits": 6,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.88,
+      "paraphrase_hit_rate": 0.9,
+      "near_miss_wrong_hits": 6,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.885,
+      "paraphrase_hit_rate": 0.9,
+      "near_miss_wrong_hits": 4,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.89,
+      "paraphrase_hit_rate": 0.9,
+      "near_miss_wrong_hits": 3,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.895,
+      "paraphrase_hit_rate": 0.9,
+      "near_miss_wrong_hits": 2,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.9,
+      "paraphrase_hit_rate": 0.9,
+      "near_miss_wrong_hits": 2,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.905,
+      "paraphrase_hit_rate": 0.85,
+      "near_miss_wrong_hits": 1,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.91,
+      "paraphrase_hit_rate": 0.85,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.915,
+      "paraphrase_hit_rate": 0.85,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.92,
+      "paraphrase_hit_rate": 0.8,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.925,
+      "paraphrase_hit_rate": 0.8,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.93,
+      "paraphrase_hit_rate": 0.8,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.935,
+      "paraphrase_hit_rate": 0.75,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.94,
+      "paraphrase_hit_rate": 0.65,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.945,
+      "paraphrase_hit_rate": 0.55,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.95,
+      "paraphrase_hit_rate": 0.5,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.955,
+      "paraphrase_hit_rate": 0.5,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.96,
+      "paraphrase_hit_rate": 0.45,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.965,
+      "paraphrase_hit_rate": 0.4,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.97,
+      "paraphrase_hit_rate": 0.3,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.975,
+      "paraphrase_hit_rate": 0.2,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.98,
+      "paraphrase_hit_rate": 0.2,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.985,
+      "paraphrase_hit_rate": 0.1,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    },
+    {
+      "threshold": 0.99,
+      "paraphrase_hit_rate": 0.0,
+      "near_miss_wrong_hits": 0,
+      "golden_cross_wrong_hits": 0
+    }
+  ],
+  "paraphrases": [
+    {
+      "id": "Q01",
+      "a": "How many days do I have to submit a reimbursement claim after discharge?",
+      "b": "After I'm discharged, how many days do I get to file for reimbursement?",
+      "cos": 0.9460717439651489
+    },
+    {
+      "id": "Q02",
+      "a": "What is the room rent limit on the Silver plan?",
+      "b": "What's the Silver plan's room rent cap?",
+      "cos": 0.9706087112426758
+    },
+    {
+      "id": "Q03",
+      "a": "Is maternity covered on the Bronze plan?",
+      "b": "Does the Bronze plan include maternity cover?",
+      "cos": 0.9428168535232544
+    },
+    {
+      "id": "Q04",
+      "a": "What is the waiting period for pre-existing diseases?",
+      "b": "How long is the waiting period for a pre-existing condition?",
+      "cos": 0.9391579031944275
+    },
+    {
+      "id": "Q05",
+      "a": "How long is the grace period for an annual policy?",
+      "b": "What grace period do I get on a yearly policy?",
+      "cos": 0.9000900983810425
+    },
+    {
+      "id": "Q07",
+      "a": "What is the no-claim bonus on Gold?",
+      "b": "How much no-claim bonus does the Gold plan give?",
+      "cos": 0.9192320108413696
+    },
+    {
+      "id": "Q08",
+      "a": "Can I claim for IVF treatment?",
+      "b": "Is IVF something I can make a claim for?",
+      "cos": 0.9615584015846252
+    },
+    {
+      "id": "Q09",
+      "a": "What is the cataract sub-limit on Gold?",
+      "b": "On the Gold plan, what's the sub-limit for cataract?",
+      "cos": 0.9354274868965149
+    },
+    {
+      "id": "Q11",
+      "a": "How much ambulance cover is there?",
+      "b": "What's the cover for an ambulance?",
+      "cos": 0.8507583141326904
+    },
+    {
+      "id": "Q12",
+      "a": "Is mental illness covered?",
+      "b": "Does the policy cover mental illness?",
+      "cos": 0.9301508069038391
+    },
+    {
+      "id": "Q13",
+      "a": "What is the free-look period?",
+      "b": "How long is the free look period?",
+      "cos": 0.9567553997039795
+    },
+    {
+      "id": "Q14",
+      "a": "How many wellness points do I get for completing an annual health check-up?",
+      "b": "How many wellness points does an annual health check-up earn me?",
+      "cos": 0.989923357963562
+    },
+    {
+      "id": "Q16",
+      "a": "Within how many hours must a hospital notify Aurora of an emergency admission for cashless?",
+      "b": "For an emergency cashless admission, within how many hours must the hospital tell Aurora?",
+      "cos": 0.972452700138092
+    },
+    {
+      "id": "Q17",
+      "a": "Does Aurora use a TPA?",
+      "b": "Is a third party administrator used by Aurora?",
+      "cos": 0.874308168888092
+    },
+    {
+      "id": "Q26",
+      "a": "Is knee replacement covered immediately after I buy the policy?",
+      "b": "If I buy the policy today, is knee replacement covered right away?",
+      "cos": 0.9842455387115479
+    },
+    {
+      "id": "Q29",
+      "a": "How many days do I have to respond to a query Aurora raises on my claim?",
+      "b": "How many days can I take to answer a query Aurora raises on my claim?",
+      "cos": 0.983185887336731
+    },
+    {
+      "id": "Q30",
+      "a": "How far in advance must a planned cashless admission be notified?",
+      "b": "How much notice does a planned cashless admission need?",
+      "cos": 0.9661160707473755
+    },
+    {
+      "id": "Q32",
+      "a": "Which plans have no co-payment?",
+      "b": "Which plans have zero co-pay?",
+      "cos": 0.9424629211425781
+    },
+    {
+      "id": "Q38",
+      "a": "What is Aurora's claim settlement ratio for the last financial year?",
+      "b": "What was Aurora's claim settlement ratio last financial year?",
+      "cos": 0.989585280418396
+    },
+    {
+      "id": "Q45",
+      "a": "Is a 6 dioptre lasik covered?",
+      "b": "Would LASIK for 6 dioptres be covered?",
+      "cos": 0.9692989587783813
+    }
+  ],
+  "near_misses": [
+    {
+      "id": "Q01",
+      "a": "How many days do I have to submit a reimbursement claim after discharge?",
+      "b": "How many days do I have to submit a cashless claim after discharge?",
+      "cos": 0.8348292112350464
+    },
+    {
+      "id": "Q02",
+      "a": "What is the room rent limit on the Silver plan?",
+      "b": "What is the room rent limit on the Bronze plan?",
+      "cos": 0.8901264667510986
+    },
+    {
+      "id": "Q03",
+      "a": "Is maternity covered on the Bronze plan?",
+      "b": "Is maternity covered on the Gold plan?",
+      "cos": 0.8478872179985046
+    },
+    {
+      "id": "Q04",
+      "a": "What is the waiting period for pre-existing diseases?",
+      "b": "What is the waiting period for maternity benefits?",
+      "cos": 0.7186744809150696
+    },
+    {
+      "id": "Q05",
+      "a": "How long is the grace period for an annual policy?",
+      "b": "How long is the grace period for an instalment policy?",
+      "cos": 0.8385356664657593
+    },
+    {
+      "id": "Q07",
+      "a": "What is the no-claim bonus on Gold?",
+      "b": "What is the no-claim bonus on Silver?",
+      "cos": 0.8881675004959106
+    },
+    {
+      "id": "Q08",
+      "a": "Can I claim for IVF treatment?",
+      "b": "Can I claim for cataract treatment?",
+      "cos": 0.781535267829895
+    },
+    {
+      "id": "Q09",
+      "a": "What is the cataract sub-limit on Gold?",
+      "b": "What is the cataract sub-limit on Silver?",
+      "cos": 0.883196234703064
+    },
+    {
+      "id": "Q11",
+      "a": "How much ambulance cover is there?",
+      "b": "How much air ambulance cover is there?",
+      "cos": 0.8810005187988281
+    },
+    {
+      "id": "Q12",
+      "a": "Is mental illness covered?",
+      "b": "Is dental treatment covered?",
+      "cos": 0.7056485414505005
+    },
+    {
+      "id": "Q13",
+      "a": "What is the free-look period?",
+      "b": "How long is the grace period?",
+      "cos": 0.687829852104187
+    },
+    {
+      "id": "Q14",
+      "a": "How many wellness points do I get for completing an annual health check-up?",
+      "b": "How many wellness points do I get for completing the quit-tobacco programme?",
+      "cos": 0.7910856008529663
+    },
+    {
+      "id": "Q16",
+      "a": "Within how many hours must a hospital notify Aurora of an emergency admission for cashless?",
+      "b": "How many hours in advance must a planned cashless admission be notified?",
+      "cos": 0.7300306558609009
+    },
+    {
+      "id": "Q17",
+      "a": "Does Aurora use a TPA?",
+      "b": "Does Aurora use a network of hospitals?",
+      "cos": 0.7537375092506409
+    },
+    {
+      "id": "Q26",
+      "a": "Is knee replacement covered immediately after I buy the policy?",
+      "b": "Is knee replacement covered after an accident?",
+      "cos": 0.7787723541259766
+    },
+    {
+      "id": "Q29",
+      "a": "How many days do I have to respond to a query Aurora raises on my claim?",
+      "b": "How many days does Aurora take to settle a reimbursement claim?",
+      "cos": 0.7585263252258301
+    },
+    {
+      "id": "Q30",
+      "a": "How far in advance must a planned cashless admission be notified?",
+      "b": "How much notice does an emergency cashless admission need?",
+      "cos": 0.8501206636428833
+    },
+    {
+      "id": "Q32",
+      "a": "Which plans have no co-payment?",
+      "b": "Which plans have a 20% co-payment?",
+      "cos": 0.7924181222915649
+    },
+    {
+      "id": "Q38",
+      "a": "What is Aurora's claim settlement ratio for the last financial year?",
+      "b": "What was Aurora's claim settlement time last financial year?",
+      "cos": 0.906438410282135
+    },
+    {
+      "id": "Q45",
+      "a": "Is a 6 dioptre lasik covered?",
+      "b": "Is a 9 dioptre lasik covered?",
+      "cos": 0.9021322131156921
+    }
+  ],
+  "top_golden_pairs": [
+    {
+      "a": "Q28",
+      "b": "Q42",
+      "cos": 0.8354551792144775
+    },
+    {
+      "a": "Q07",
+      "b": "Q24",
+      "cos": 0.7980832457542419
+    },
+    {
+      "a": "Q10",
+      "b": "Q40",
+      "cos": 0.7839868664741516
+    },
+    {
+      "a": "Q10",
+      "b": "Q31",
+      "cos": 0.7720569372177124
+    },
+    {
+      "a": "Q31",
+      "b": "Q38",
+      "cos": 0.7676640748977661
+    },
+    {
+      "a": "Q29",
+      "b": "Q31",
+      "cos": 0.7554911375045776
+    },
+    {
+      "a": "Q10",
+      "b": "Q29",
+      "cos": 0.7540023326873779
+    },
+    {
+      "a": "Q01",
+      "b": "Q31",
+      "cos": 0.7514296770095825
+    },
+    {
+      "a": "Q10",
+      "b": "Q38",
+      "cos": 0.7500108480453491
+    },
+    {
+      "a": "Q17",
+      "b": "Q40",
+      "cos": 0.7422898411750793
+    }
+  ]
+}

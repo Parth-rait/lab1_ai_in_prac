@@ -268,14 +268,20 @@ def _build_answer(question: str, text: str, hits: list[Hit], v: dict, *,
     )
 
 
-def _generate(question: str, context: str, *, tier: str, system: str,
-              max_tokens: int) -> tuple[str, str | None]:
-    prompt = (
+def build_user_prompt(question: str, context: str) -> str:
+    """The user turn. Shared with Lab 7's streaming path so both send the
+    model byte-identical prompts."""
+    return (
         f"{delimit_untrusted(context, 'RETRIEVED_DOCUMENT')}\n\n"
         f"Question: {question}\n\n"
         f"Answer using only the numbered sources above, citing each factual "
         f"sentence."
     )
+
+
+def _generate(question: str, context: str, *, tier: str, system: str,
+              max_tokens: int) -> tuple[str, str | None]:
+    prompt = build_user_prompt(question, context)
     res = chat(prompt, system=system, tier=tier, max_tokens=max_tokens,
                temperature=0.0, return_full=True)
     return (res["text"] or "").strip(), res.get("finish_reason")

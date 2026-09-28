@@ -11,6 +11,8 @@ the source text.** Grounding the user cannot check is decoration.
 """
 from __future__ import annotations
 
+import json
+
 import requests
 import streamlit as st
 
@@ -24,17 +26,57 @@ st.caption("Answers come only from Aurora's policy documents. "
 q = st.text_input("Ask a question",
                   placeholder="How long do I have to file a reimbursement claim?")
 
+stream = st.sidebar.toggle("Stream the answer", value=True)
+
+
+def _ask_stream(question: str) -> dict:
+    """B3 on the client: show sentences as they arrive, then act on the
+    validation event. A `replace` event means the streamed text failed
+    citation validation -- swap in the repaired (or refused) answer."""
+    box, text, data, ev = st.empty(), "", {}, None
+    with requests.post(f"{API}/ask/stream", json={"question": question},
+                       stream=True, timeout=60) as r:
+        r.raise_for_status()
+        for line in r.iter_lines(decode_unicode=True):
+            if line.startswith("event:"):
+                ev = line[6:].strip()
+            elif line.startswith("data:"):
+                d = json.loads(line[5:])
+                if ev == "token":
+                    text += d["text"]
+                    box.markdown(text + " ▌")
+                elif ev == "replace":
+                    st.caption(f"Streamed answer retracted ({d['reason']}); corrected below.")
+                    text = d["text"]
+                elif ev == "citations":
+                    data.update(d)
+                elif ev == "validation":
+                    data.update(refused=d["refused"], partial=d["partial"])
+                elif ev == "done":
+                    data.update(latency_ms=d["total_ms"], ttft_ms=d["ttft_ms"],
+                                cost_usd=d["cost_usd"], cached=bool(d["cache_layer"]),
+                                cache_layer=d["cache_layer"], guards=d["guards"])
+                elif ev == "error":
+                    raise RuntimeError(f"{d['status']}: {d['detail']}")
+    box.empty()
+    data["answer"] = text
+    return data
+
+
 if st.button("Ask", type="primary") and q:
     with st.spinner("thinking"):
         try:
-            r = requests.post(f"{API}/ask", json={"question": q}, timeout=60)
-            r.raise_for_status()
-            data = r.json()
+            if stream:
+                data = _ask_stream(q)
+            else:
+                r = requests.post(f"{API}/ask", json={"question": q}, timeout=60)
+                r.raise_for_status()
+                data = r.json()
         except requests.HTTPError as exc:
             st.error(f"{exc.response.status_code}: {exc.response.text[:300]}")
             st.stop()
-        except requests.RequestException as exc:
-            st.error(f"service unreachable: {exc}")
+        except (requests.RequestException, RuntimeError) as exc:
+            st.error(f"request failed: {exc}")
             st.stop()
 
     if data.get("refused"):
@@ -69,9 +111,12 @@ if st.button("Ask", type="primary") and q:
     cols = st.columns(4)
     cols[0].metric("latency", f"{data.get('latency_ms', 0):.0f} ms")
     cols[1].metric("cost", f"${data.get('cost_usd', 0):.5f}")
-    cols[2].metric("cached", "yes" if data.get("cached") else "no")
+    cols[2].metric("cache", data.get("cache_layer") or "miss")
     cols[3].metric("citations", len(data.get("citations", [])))
-    st.caption(f"trace: `{data.get('trace_id', '')}`")
+    if data.get("ttft_ms") is not None:
+        st.caption(f"time to first sentence: {data['ttft_ms']:.0f} ms")
+    if data.get("trace_id"):
+        st.caption(f"trace: `{data['trace_id']}`")
 
 # TODO stretch: a thumbs-down button that appends the case to a review queue.
 # That queue is how real golden sets get built.
