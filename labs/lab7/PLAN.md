@@ -154,3 +154,83 @@ the breach honestly and set the gate at measured − 1 SE with the reasoning wri
 5. D1–D3 (green, then red screenshot)
 6. C3/C4 dashboard + alert
 7. E1–E7, rehearse the 5-minute demo
+
+---
+
+## 6 · Recalibration (29 Sep, after P3)
+
+### What P3 showed
+
+v1 prompt on the Lab 5 retriever: refusal precision **0.667** (4/6), recall **0.800**
+(`reports/lab7_p3_v1prompt.json`). Worse than v2 (0.714, 1.000). Lab 4's 0.833 for v1 was
+measured on a different retriever and does not transfer. **P2 as planned is refuted.**
+
+### Comparison: reference repo (neeti-kurulkar/ai-in-practice-lab1, commit e874997, Labs 1–6)
+
+Same golden set, corpus and `aip/`. Different pipeline: MAIN generator, 300-char chunks,
+LARGE judge.
+
+| | ours: v2 + expansion (SMALL) | theirs: Lab 4 (MAIN) | theirs: Lab 5 small-to-big |
+|---|---|---|---|
+| correctness | 0.949 | 0.863 | 0.925 |
+| refusal recall | 1.000 | 0.800 exact / 1.000 incl. partials | 1.000 |
+| **refusal precision** | **0.714 ❌** | **1.000 ✅** | **0.833 ✅** |
+| cost/query | $0.0011 | $0.0089 | **$0.0123 ❌** |
+| p95 | 1,075 ms | 4,237 ms | **8,912 ms ❌** |
+
+**They pass the gate we fail.** (Their Lab 5 fix fails cost and latency instead, so their
+Lab 4 pipeline is the one that clears all eight.)
+
+### Why: partial answers do not use the refusal sentence
+
+Our v1 and v2 both tell the model to answer the supported part and then append the
+**exact refusal sentence**. Exact-match detection then counts every partial answer as a
+refusal, and because the question was answerable, as a *false* refusal. Their rule 4:
+
+- partial answer = supported fact [n] + "**The sources do not state** <missing part>."
+  No refusal sentence.
+- refuse **only when the sources say nothing** about the subject.
+- **no substitution**: a different quantity (sum insured for premium) is not a partial
+  answer. Refuse instead. (This is the clause that stopped their Q36 regression.)
+- if the sources confirm something *exists* but not the detail, say it exists, cite it,
+  and say the detail is not stated. That is their Q40 fix ("24×7 helpline, number on the
+  policy schedule [1][4]"), scored correctness 2.
+
+Per question, on our two false refusals: **Q23** becomes a partial (their corr 1, ours 2
+as a refusal); **Q44** becomes a partial that is still wrong (their corr 0). Q44 is a
+retrieval/paraphrase failure either way.
+
+**Honesty caveat (goes in the report):** part of the precision gain is definitional.
+Q44 still fails. It just stops being counted as a refusal and shows up in correctness
+instead. So we report **both** definitions, as they do: exact refusals (what downstream
+code sees, and what the gate uses) and refusals + partial declines.
+
+### Revised pre-work (replaces P2–P4)
+
+| # | Change | Why |
+|---|---|---|
+| P2′ | `ANSWER_SYSTEM_V3` in `labs/lab4/rag.py` = v2 with rules 4/4a rewritten to the shape above (partial → "The sources do not state …", refuse only on nothing, no substitution, exists-but-no-detail). v1/v2 kept. Add `partial_decline` detection (regex on "The sources do not state") to `validate_answer` and to the rows | Moves correct partials out of the false-refusal bucket, and fixes Q40's appended-topic refusal |
+| P3′ | One live run: v3 + Lab 5 retriever, SMALL, `--baseline reports/lab5_v2_rejudged.json` (~135 calls; ~110 used today) | One variable against v2, same as P3 |
+| P3′ decision | **Ship v3** if precision ≥ 0.75 **and** recall ≥ 0.80 **and** correctness ≥ 0.919 (v2 − 1 SE) **and** no new Q36-type substitution. Otherwise **ship v2** and fall back to "report the breach, gate at measured − 1 SE" | Pre-registered, so we cannot pick the rule after seeing the numbers |
+| P4′ | Addenda cover **both** runs: v1 refuted (P3), v3 result (P3′), both refusal definitions | Lab 4's "revert to v1" next step is now answered: tested, and it did not hold |
+
+**Not adopted from their repo:** MAIN tier (4.2 s p95 on its own, ~20 calls/day) and
+small-to-big (p95 8.9 s, $0.0123/query, both over the gate).
+
+### Knock-on changes to later steps
+
+- **Service / UI (A, B3):** the response carries `partial: bool`, and the UI shows the
+  "not stated" part distinctly. The streaming `validation` event treats a cited partial
+  as valid, not as a retraction.
+- **Gate (D1):** `refusal_precision` and `refusal_recall` stay exact-match (gated).
+  `partial_decline_rate` is reported but not gated. Watch it in C4: a jump means the
+  index lost content.
+- **Pipeline diagram (§2):** "prompt v1 wording" → "prompt v3 (or v2, per P3′ decision)".
+- **E2 failures:** add Q29 (motor-claim distractor, 0 under v1) and Q44 (unchanged,
+  retrieval). Q37 is still the worst remaining failure.
+
+### Revised order of work
+
+1. ✅ Commit + P1 · ✅ P2/P3 (v1: refuted, committed `8934a7f`)
+2. **P2′ → P3′ → decision → P4′** (live, today)
+3. A1–A4 → B1a → C1/C2 · 4. B1b/B1c → B2/B3 → B4 · 5. D1–D3 · 6. C3/C4 · 7. E1–E7
