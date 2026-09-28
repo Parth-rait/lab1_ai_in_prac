@@ -39,20 +39,38 @@ if st.button("Ask", type="primary") and q:
 
     if data.get("refused"):
         st.warning(data["answer"])
+    elif data.get("partial"):
+        # v3 prompt: a cited answer to part of the question, then "The sources
+        # do not state ...". Shown as an answer with a caveat, not a refusal.
+        st.markdown(data["answer"])
+        st.info("Partly answered: the policy documents do not cover part of this question.")
     else:
         st.markdown(data["answer"])
 
-    # TODO A4: render citations as expanders showing the source excerpt.
-    #          A citation the user cannot open is not grounding.
+    # A4: every citation opens to the source text it points at. A citation
+    # the user cannot open is not grounding.
+    if data.get("citations"):
+        st.subheader("Citations")
     for c in data.get("citations", []):
         with st.expander(f"[{c['index']}] {c['doc_id']}"):
             st.text(c["excerpt"])
+
+    cited = {c["index"] for c in data.get("citations", [])}
+    uncited = [s for s in data.get("sources", []) if s["index"] not in cited]
+    if uncited:
+        with st.expander(f"Other retrieved sources ({len(uncited)}, not cited)"):
+            for s in uncited:
+                st.markdown(f"**[{s['index']}] {s['doc_id']}**")
+                st.text(s["excerpt"])
+
+    if data.get("guards"):
+        st.caption("Guards fired: " + ", ".join(data["guards"]))
 
     cols = st.columns(4)
     cols[0].metric("latency", f"{data.get('latency_ms', 0):.0f} ms")
     cols[1].metric("cost", f"${data.get('cost_usd', 0):.5f}")
     cols[2].metric("cached", "yes" if data.get("cached") else "no")
-    cols[3].metric("sources", len(data.get("citations", [])))
+    cols[3].metric("citations", len(data.get("citations", [])))
     st.caption(f"trace: `{data.get('trace_id', '')}`")
 
 # TODO stretch: a thumbs-down button that appends the case to a review queue.

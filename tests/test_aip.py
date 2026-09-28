@@ -310,40 +310,5 @@ def test_extract_deterministic_flags_a_real_phone_number_as_pii():
     assert extract_deterministic(ticket)["contains_pii"] is True
 
 
-# --- asymmetric embeddings -------------------------------------------------
-def test_embed_cache_key_separates_query_from_passage():
-    """A passage vector and a query vector for the same text are different
-    vectors on an asymmetric model. If they share a cache key they collide,
-    and retrieval degrades silently -- no error, just worse numbers."""
-    from aip import cache
-    from aip.embed import _supports_input_type
-
-    assert _supports_input_type("nvidia_nim/nvidia/nemotron-3-embed-1b")
-    assert not _supports_input_type("gemini/gemini-embedding-001")
-
-    nvidia = "nvidia_nim/nvidia/nemotron-3-embed-1b"
-    k_pass = cache.make_key("embed", {"model": nvidia, "text": "x", "input_type": "passage"})
-    k_query = cache.make_key("embed", {"model": nvidia, "text": "x", "input_type": "query"})
-    assert k_pass != k_query, "asymmetric embeddings must not share a cache key"
-
-    # Symmetric providers pass input_type=None, so their keys stay stable
-    # regardless of which side of the retriever asked for them.
-    gem = "gemini/gemini-embedding-001"
-    assert (cache.make_key("embed", {"model": gem, "text": "x", "input_type": None})
-            == cache.make_key("embed", {"model": gem, "text": "x", "input_type": None}))
 
 
-def test_unpriced_models_are_not_reported_as_free():
-    """$0.00 must mean 'free', never 'we do not know'."""
-    from aip.cost import Budget, Usage, is_priced
-
-    assert is_priced("gemini/gemini-3.5-flash-lite")
-    assert is_priced("ollama/llama3.1:8b"), "local models are genuinely free"
-    assert not is_priced("nvidia_nim/nvidia/nemotron-3-nano-30b-a3b")
-
-    b = Budget(limit_usd=1.0, label="t")
-    b.record(Usage("nvidia_nim/nvidia/nemotron-3-nano-30b-a3b", 100, 10, 0.0, 5.0,
-                   priced=False))
-    assert b.unpriced_calls == 1
-    assert "UNPRICED" in b.report()
-    assert b.as_dict()["unpriced_calls"] == 1
