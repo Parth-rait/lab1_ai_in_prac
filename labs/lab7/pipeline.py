@@ -38,7 +38,7 @@ CONFIG = {
     "retriever": "lab5-doc-expansion(lab3 markdown-400 dense, no ARCHIVED)",
     "k": 12,
     "final_k": 6,
-    "prompt": "v3",
+    "prompt": "v1",
     "tier": "SMALL",
 }
 
