@@ -23,6 +23,8 @@ from aip.chunking import markdown_chunks  # noqa: E402
 from aip.retrieval import Hit, Retriever  # noqa: E402
 from labs.lab3.search import load_corpus, load_questions  # noqa: E402
 from labs.lab4.evaluate import build_retriever  # noqa: E402
+from labs.runlog import cache_warning, file_fingerprint  # noqa: E402
+from labs.runlog import run as runlog
 
 MODES = {
     1: "missing_content",
@@ -199,7 +201,9 @@ def main() -> None:
     failures = [r for r in rows
                 if (r.get("correctness") is not None and r["correctness"] < 2)
                 or not r.get("citations_valid", True)]
-    print(f"{len(failures)} failures out of {len(rows)}\n")
+    fp = file_fingerprint(ROOT / args.input)
+    print(f"{len(failures)} failures out of {len(rows)}   "
+          f"[input {fp.get('path')} sha {fp.get('sha256_12')} rows {fp.get('rows')}]\n")
 
     # Evidence 2 (modes 3/4/5): was the gold doc in the top 30, and is the gold
     # chunk findable by its own text? Both re-run the Lab 4 retriever; every
@@ -379,7 +383,12 @@ def run_before_after(save: str = "reports/lab5_before_after.json",
     print(f"variant: {variant}", flush=True)
 
     rows = []
-    with Budget(limit_usd=1.00, label="lab5-v2") as b:
+    # The v1 baseline is read from a file another lab writes. Fingerprinting it
+    # here is what makes "the input changed underneath us" visible: re-judging
+    # Lab 4 once took this from 12 failures to 6 with nothing in any log.
+    with runlog("lab5-before-after", variant=variant, limit=limit,
+                v1_input=file_fingerprint(ROOT / "reports/lab4.json")) as _rl, \
+         Budget(limit_usd=1.00, label="lab5-v2") as b:
         for q in questions:
             a = answer_question(q["question"], retriever, k=12, final_k=6, tier="SMALL")
             ctx = format_context(a.hits)
@@ -421,6 +430,9 @@ def run_before_after(save: str = "reports/lab5_before_after.json",
             "latency_p95_ms": _p95(lat),
             "mean_sources": _st.fmean(r["n_sources"] for r in rs),
         }
+
+    _rl["rows"] = len(rows)
+    cache_warning(b, label="(lab5-v2)")
 
     ids = {r["id"] for r in rows}
     s1, s2 = summarise([r for r in v1_rows if r["id"] in ids]), summarise(rows)

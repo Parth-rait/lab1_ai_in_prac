@@ -1312,5 +1312,21 @@
       ],
       "context": "[1] (source: exclusions)\n[Permanent Exclusions]\nThe following are never payable under any Aurora indemnity plan, at any sum\ninsured, regardless of waiting periods served.\n\n[2] (source: exclusions)\n[Permanent Exclusions > Treatment-related exclusions]\n- Cosmetic or plastic surgery, unless required to treat an accidental injury,\n  burn, or cancer, and certified as medically necessary by the treating surgeon.\n- Any treatment for obesity or weight control, other than bariatric surgery that\n  meets the criteria in `pre-existing-conditions`.\n\n[3] (source: exclusions)\n[Permanent Exclusions > Treatment-related exclusions]\n- Infertility, assisted reproduction, IVF, surrogacy, and sterilisation reversal.\n- Gender-affirming surgery, unless mandated by a court or by law.\n- Dental treatment and oral surgery, unless necessitated by an accidental injury\n  requiring hospitalisation.\n- Refractive error correction where the error is less than 7.5 dioptres.\n\n[4] (source: exclusions)\n[Permanent Exclusions > Treatment-related exclusions]\n- Hearing aids, spectacles, contact lenses, and their fitting.\n- Experimental, investigational, or unproven treatment, defined as any treatment\n  not supported by prevailing Indian medical practice.\n- Rest cure, respite care, custodial care, and convalescence at any facility.\n\n[5] (source: exclusions)\n[Permanent Exclusions > Treatment-related exclusions]\n- Treatment taken outside India, except under Platinum's international\n  emergency benefit.\n"
     }
-  ]
+  ],
+  "_provenance": {
+    "stamped_utc": "2026-09-25T09:06:31+00:00",
+    "git_sha": "c52f0d5",
+    "git_dirty": true,
+    "profile": "gemini",
+    "models": {
+      "SMALL": "gemini/gemini-3.5-flash-lite",
+      "MAIN": "gemini/gemini-3.7-flash",
+      "LARGE": "gemini/gemini-3.5-flash",
+      "EMBED": "gemini/gemini-embedding-001"
+    },
+    "cache_enabled": true,
+    "offline": false,
+    "temperature": 0.0,
+    "note": "Cost and latency measured with cache_enabled=true are NOT deployment figures: a warm cache reports ~$0 and ~0 ms. Re-measure with AIP_CACHE=0 to quote either."
+  }
 }

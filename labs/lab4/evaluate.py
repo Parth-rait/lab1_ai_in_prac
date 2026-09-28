@@ -30,6 +30,8 @@ from labs.lab4.rag import (  # noqa: E402
     answer_with_gold_context,
     is_refusal,
 )
+from labs.runlog import cache_warning, file_fingerprint  # noqa: E402
+from labs.runlog import run as runlog
 
 GOLDEN = ROOT / "data/eval/rag_golden.jsonl"
 LABEL_SHEET = ROOT / "labs/lab4/calibration_labels.jsonl"
@@ -238,7 +240,10 @@ def run_full(save: str = "", *, strict: bool = False, limit: int = 0,
     system = ANSWER_SYSTEM_STRICT if strict else ANSWER_SYSTEM
     rows = []
 
-    with Budget(limit_usd=budget_usd, label="lab4-full") as b:
+    with runlog("lab4-full", strict=strict, limit=limit, gen_tier=GEN_TIER,
+                judge_tier=JUDGE_TIER, judge=judge,
+                golden=file_fingerprint(GOLDEN)) as _rl, \
+         Budget(limit_usd=budget_usd, label="lab4-full") as b:
         for q in questions:
             a = _with_retry(lambda q=q: answer_question(
                 q["question"], retriever, tier=GEN_TIER, system=system))
@@ -264,6 +269,9 @@ def run_full(save: str = "", *, strict: bool = False, limit: int = 0,
             print(f"  {q['id']:<4} {'REFUSED' if a.refused else 'answered':<9} "
                   f"cit={a.n_citations} valid={a.citations_valid} "
                   f"{'REPAIRED ' if a.repaired else ''}{a.latency_ms:.0f}ms", flush=True)
+
+    _rl["rows"] = len(rows)
+    cache_warning(b, label="(lab4-full)")
 
     ans = [r for r in rows if not r["unanswerable"]]
     una = [r for r in rows if r["unanswerable"]]

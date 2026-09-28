@@ -19,9 +19,10 @@ It now uses **markdown-aware chunking at 400 characters, `k=5`, archived documen
 is the D3 result that fixed the stale-timelines trap for free. Every number in this report
 was re-measured on the corrected retriever after the change.
 
-**What the change did to the red-team results: nothing.** Block rate stayed 17/17 and false
-positives 0/4 at both the unguarded and all-layers settings, and privileged calls stayed at
-0. That is the right outcome rather than a disappointing one — the attacks in this suite
+**What the change did to the red-team results: nothing.** Every row of the D1 table below,
+and all five D4 attacks, were re-measured on the corrected retriever: block rate stayed
+17/17, the layer-2 false positive and its layer-3 repair both reproduced exactly, N05 still
+succeeds, and privileged calls stayed at 0. That is the right outcome rather than a disappointing one — the attacks in this suite
 target the model's willingness to be persuaded and the guard's willingness to execute, and
 neither depends on how good the search underneath is. It also means the C02 finding below is
 not an artefact of a weak retriever: with the better configuration the innocent customer's
@@ -148,8 +149,8 @@ counted nor capped — the per-query ceiling silently did not cover a defence la
 spends money. Every layer-3 row therefore reported $0.00000. Post-processing now runs inside
 the budget, which is why these numbers exist at all.
 
-The sweep isolates both the damage and the repair: **layer 2 introduces the false positive,
-and layer 3 removes it.** Layers 1, 4 and 5 cost nothing on either rate.
+All six rows were measured on the same (Lab 3) retriever. The sweep isolates both the damage
+and the repair: **layer 2 introduces the false positive, and layer 3 removes it.** Layers 1, 4 and 5 cost nothing on either rate.
 
 **This is the strongest argument in the lab for measuring layers one at a time.** Had I only
 run "unguarded vs all five", both would have read 1.00 / 0.00 and the conclusion would have

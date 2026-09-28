@@ -1398,5 +1398,21 @@
       "context": "[1] (source: exclusions)\n[Permanent Exclusions > Treatment-related exclusions]\n- Infertility, assisted reproduction, IVF, surrogacy, and sterilisation reversal.\n- Gender-affirming surgery, unless mandated by a court or by law.\n- Dental treatment and oral surgery, unless necessitated by an accidental injury\n  requiring hospitalisation.\n- Refractive error correction where the error is less than 7.5 dioptres.\n\n[2] (source: health-faq-general)\n[Frequently Asked Questions]\n**Is maternity covered?**\nOn some plans, after a waiting period. See `maternity-benefits`.\n\n**What if you reject my claim?**\nThere is a three-stage grievance process ending with the Ombudsman. See\n`grievance-redressal`.\n\n[3] (source: pre-existing-conditions)\n[Waiting Periods and Pre-Existing Diseases > Specified illnesses with a 24-month waiting period]\nCataract; benign prostatic hypertrophy; hernia of all types; hydrocele; fissure,\nfistula or haemorrhoids; gall bladder and bile duct stones; kidney and urinary\ntract stones; benign uterine conditions including fibroids; varicose veins;\n\n[4] (source: health-faq-general)\n[Frequently Asked Questions]\n**What is a waiting period?**\nA period of continuous cover that must pass before certain claims become\npayable. See `pre-existing-conditions` for the schedule.\n\n**Is my treatment covered abroad?**\nGenerally no. One plan tier has a limited international emergency benefit.\n\n[5] (source: pre-existing-conditions)\n[Waiting Periods and Pre-Existing Diseases > Schedule of waiting periods]\n| Pre-existing diseases (PED) | 36 months | Any condition diagnosed or treated in the 48 months before the policy start |\n| Maternity | 24 months | See `maternity-benefits` |\n| Bariatric surgery | 36 months | Where medically indicated and BMI criteria met |\n",
       "strict_mode": false
     }
-  ]
+  ],
+  "_provenance": {
+    "stamped_utc": "2026-09-25T09:06:31+00:00",
+    "git_sha": "c52f0d5",
+    "git_dirty": true,
+    "profile": "gemini",
+    "models": {
+      "SMALL": "gemini/gemini-3.5-flash-lite",
+      "MAIN": "gemini/gemini-3.7-flash",
+      "LARGE": "gemini/gemini-3.5-flash",
+      "EMBED": "gemini/gemini-embedding-001"
+    },
+    "cache_enabled": true,
+    "offline": false,
+    "temperature": 0.0,
+    "note": "Cost and latency measured with cache_enabled=true are NOT deployment figures: a warm cache reports ~$0 and ~0 ms. Re-measure with AIP_CACHE=0 to quote either."
+  }
 }

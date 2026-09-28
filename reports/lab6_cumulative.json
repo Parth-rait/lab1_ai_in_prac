@@ -3674,5 +3674,21 @@
         5
       ]
     }
-  ]
+  ],
+  "_provenance": {
+    "stamped_utc": "2026-09-25T09:06:31+00:00",
+    "git_sha": "c52f0d5",
+    "git_dirty": true,
+    "profile": "gemini",
+    "models": {
+      "SMALL": "gemini/gemini-3.5-flash-lite",
+      "MAIN": "gemini/gemini-3.7-flash",
+      "LARGE": "gemini/gemini-3.5-flash",
+      "EMBED": "gemini/gemini-embedding-001"
+    },
+    "cache_enabled": true,
+    "offline": false,
+    "temperature": 0.0,
+    "note": "Cost and latency measured with cache_enabled=true are NOT deployment figures: a warm cache reports ~$0 and ~0 ms. Re-measure with AIP_CACHE=0 to quote either."
+  }
 }

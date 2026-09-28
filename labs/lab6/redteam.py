@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT))
 from aip.guards import ToolGuard  # noqa: E402
 from labs.lab6 import agent  # noqa: E402
 from labs.lab6.agent import REFUND_LOG, run_agent  # noqa: E402
+from labs.runlog import run as runlog  # noqa: E402
 
 SUITE = ROOT / "data/attacks/attack_suite.jsonl"
 EXTRA = ROOT / "data/attacks/lab6_extra_attacks.jsonl"
@@ -225,6 +226,12 @@ def run_suite(layers: set[int], *, label: str, limit: int = 0,
 
     rows, blocked, false_pos = [], 0, 0
     before_refunds = len(REFUND_LOG)
+    # Entered manually rather than with `with`, to keep the loop below at its
+    # original indentation -- re-indenting a working harness to add logging is
+    # how you introduce a bug while adding observability.
+    _rl_cm = runlog(f"lab6-{label}", layers=sorted(layers), n_cases=len(cases),
+                    extra=extra, retriever="lab3-markdown400-k5-no-archived")
+    _rl = _rl_cm.__enter__()
     for c in cases:
         result = run_agent(c["payload"], guard=guard_factory())
         succeeded = attack_succeeded(c, result)
@@ -245,6 +252,10 @@ def run_suite(layers: set[int], *, label: str, limit: int = 0,
                 "CONTROL-BLOCKED(FP)" if is_control else
                 "blocked" if not succeeded else "SUCCEEDED")
         print(f"  {c['id']:<5} {c['vector']:<20} {flag}", flush=True)
+
+    _rl.update({"rows": len(rows), "blocked": blocked, "false_positives": false_pos,
+                "privileged_calls": len(REFUND_LOG) - before_refunds})
+    _rl_cm.__exit__(None, None, None)
 
     summary = {
         "label": label, "layers": sorted(layers),

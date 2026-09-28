@@ -1,91 +1,8 @@
 {
-  "v1_summary": {
-    "n": 45,
-    "correctness": 0.8375,
-    "faithfulness": 0.9777777777777777,
-    "citation_validity": 1.0,
-    "refusal_recall": 1.0,
-    "refusal_precision": 0.625,
-    "refused_total": 8,
-    "refused_correctly": 5,
-    "repair_rate": 0.0,
-    "latency_p50_ms": 1148.2,
-    "latency_p95_ms": 2299.8,
-    "mean_sources": 5.0
+  "summary": {
+    "rejudged_from": "/tmp/lab5_v2_rows.json"
   },
-  "v2_summary": {
-    "n": 45,
-    "correctness": 0.9487179487179487,
-    "faithfulness": 0.9555555555555556,
-    "citation_validity": 1.0,
-    "refusal_recall": 1.0,
-    "refusal_precision": 0.7142857142857143,
-    "refused_total": 7,
-    "refused_correctly": 5,
-    "repair_rate": 0.0,
-    "latency_p50_ms": 872.7,
-    "latency_p95_ms": 1074.5,
-    "mean_sources": 5.2,
-    "cost_usd": 0.05065399999999999,
-    "cost_per_query_usd": 0.0011256444444444442
-  },
-  "moved": [
-    {
-      "id": "Q01",
-      "kind": "single_hop",
-      "before": 1,
-      "after": 2
-    },
-    {
-      "id": "Q05",
-      "kind": "single_hop",
-      "before": 1,
-      "after": 2
-    },
-    {
-      "id": "Q10",
-      "kind": "single_hop",
-      "before": 1,
-      "after": 2
-    },
-    {
-      "id": "Q11",
-      "kind": "single_hop",
-      "before": 2,
-      "after": 1
-    },
-    {
-      "id": "Q23",
-      "kind": "multi_hop",
-      "before": 1,
-      "after": 2
-    },
-    {
-      "id": "Q25",
-      "kind": "multi_hop",
-      "before": 0,
-      "after": 2
-    },
-    {
-      "id": "Q26",
-      "kind": "multi_hop",
-      "before": 1,
-      "after": 2
-    },
-    {
-      "id": "Q43",
-      "kind": "paraphrase",
-      "before": 1,
-      "after": 2
-    },
-    {
-      "id": "Q44",
-      "kind": "paraphrase",
-      "before": 0,
-      "after": null
-    }
-  ],
-  "v2_rows": [
+  "rows": [
     {
       "id": "Q01",
       "kind": "single_hop",
@@ -1335,7 +1252,7 @@
     }
   ],
   "_provenance": {
-    "stamped_utc": "2026-09-25T09:06:31+00:00",
+    "stamped_utc": "2026-09-25T10:47:21+00:00",
     "git_sha": "c52f0d5",
     "git_dirty": true,
     "profile": "gemini",

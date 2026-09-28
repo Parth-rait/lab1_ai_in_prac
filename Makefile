@@ -1,4 +1,4 @@
-.PHONY: help venv setup setup-full env check ratecheck offline data test lint cost docs quiz clean
+.PHONY: help venv setup check ratecheck offline data test lint cost docs clean
 
 # ---------------------------------------------------------------------------
 # Which Python to use, in order of preference:
@@ -37,7 +37,6 @@ help:
 	@echo "make lint     ruff"
 	@echo "make cost     show what you have spent and what is cached"
 	@echo "make docs     rebuild the syllabus, proposal, decks, and the aip reference"
-	@echo "make quiz     rebuild the end-of-lab quizzes (student page + instructor key)"
 	@echo "make clean    remove caches, traces, and the vector index"
 	@echo ""
 	@echo "using: $(PYTHON)"
@@ -125,9 +124,6 @@ docs:
 	$(PYTHON) scripts/build_decks.py
 	$(PYTHON) scripts/build_html_decks.py
 	$(PYTHON) scripts/build_aip_docs.py
-
-quiz:
-	$(PYTHON) scripts/build_quiz.py
 
 clean:
 	rm -rf .aip_traces .chroma .pytest_cache .ruff_cache

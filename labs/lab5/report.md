@@ -226,3 +226,67 @@ other four untouched, i.e. about +0.02 correctness — small, and honest about b
 After that, Q37 needs a retrieval change (routing paraphrased queries to hybrid), not a
 context change; Lab 3 measured hybrid as worse overall on this corpus, so it would have to
 be routed rather than switched on globally.
+
+---
+
+## Addendum — the fix re-measured under Lab 4's corrected rubric
+
+Everything above is unchanged and remains the record of what was measured at the time.
+This section adds the one comparison that was missing, because the D1 table above scores
+both sides with Lab 4's **original** correctness rubric — the one that later failed
+calibration at κ = 0.189 and was rewritten (κ = 0.519).
+
+The v2 answers were re-scored with the corrected rubric (`--rejudge`, no answers
+regenerated, `reports/lab5_v2_rejudged.json`). That fills the cell the report was missing:
+
+| correctness | original rubric | corrected rubric |
+|---|---|---|
+| v1 (Lab 4 baseline) | 0.838 | **0.936** |
+| v2 (document expansion) | 0.949 | **0.949** |
+| **delta** | **+0.111** | **+0.013** |
+
+**The honest value of the fix is +0.013, not +0.111.** Both figures are correct
+measurements; they differ because the original rubric under-scored the *baseline*, leaving
+headroom the fix appeared to capture.
+
+### Where the difference went
+
+Of the 7 questions the fix "recovered" under the original rubric, **4 were already correct
+under the corrected rubric before the fix ran**:
+
+| | Questions | Status |
+|---|---|---|
+| Recovered by the fix, real | Q10, Q23, Q25 | the fix's actual work |
+| Recovered by the fix, no headroom left | Q01, Q05, Q26, Q43 | v1 already scores 2 once the rubric is fixed |
+
+Re-measured per question, the fix moves 5 of 42: **up** Q10, Q23, Q25 (1 → 2); **down**
+Q04 and Q11 (2 → 1). Q11 is the multi-document regression already reported in D2. Q04 is a
+second instance of the same mechanism, visible only once the baseline was scored correctly —
+expanding the top document pushed out a passage it needed.
+
+So the fix is **3 recoveries against 2 regressions**, not 7 against 1. Faithfulness also
+falls slightly further than first reported (0.978 → 0.956), and refusal precision is
+0.714 (5/7) rather than the 0.625 measured before.
+
+### What this changes about the conclusion
+
+- **The fix is still net positive, and still cost-neutral** (1.14×, no extra model calls).
+  +0.013 on 42 questions is roughly one question, which at this n is not distinguishable
+  from noise — the honest claim is "no measurable harm, a plausible small gain", not "+0.111".
+- **The diagnosis was still right.** Both clusters were real, and the mechanism the fix
+  targeted — a context split across documents — is what moved Q10, Q23 and Q25.
+- **The prediction was right for the wrong reason.** Part B predicted 4–7 recoveries and 7
+  were observed; under a correct baseline it is 3, at the bottom of the predicted range,
+  with an extra regression that was predicted in kind (multi-document questions) if not in
+  count.
+- **The D4 next step is now better motivated.** Two of the five questions that move are
+  regressions of the same type, so adaptive expansion — expand only when the second document
+  is clearly weaker — is targeting the dominant remaining failure rather than a single case.
+
+### Why this happened, in one line
+
+The judge was calibrated **after** the fix was measured instead of before. κ = 0.189 said the
+rubric was wrong; by then it had already produced a 12-failure backlog (6 of which were
+scoring artefacts) and an inflated headline. The lab's rule — hand-label 20 answers and
+compute κ before quoting a judged number — exists to prevent exactly this, and following it
+in the stated order would have produced +0.013 the first time.
