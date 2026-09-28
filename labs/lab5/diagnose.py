@@ -175,12 +175,18 @@ def main() -> None:
                     help="Part D: run the fix and compare against reports/lab4.json")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--variant", default="expand", choices=["expand", "single"])
+    ap.add_argument("--prompt", default="v2", choices=["v1", "v2"],
+                    help="answer prompt wording (labs/lab4/rag.py PROMPTS)")
+    ap.add_argument("--baseline", default="reports/lab4.json",
+                    help="--before-after: saved run to compare against")
+    ap.add_argument("--out", default="", help="--before-after: where to save")
     args = ap.parse_args()
 
     if args.before_after:
-        run_before_after(limit=args.limit, variant=args.variant,
-                         save=("reports/lab5_before_after.json" if args.variant == "expand"
-                               else "reports/lab5_variant_single.json"))
+        default_out = ("reports/lab5_before_after.json" if args.variant == "expand"
+                       else "reports/lab5_variant_single.json")
+        run_before_after(limit=args.limit, variant=args.variant, prompt=args.prompt,
+                         baseline=args.baseline, save=args.out or default_out)
         return
 
     data = json.loads((ROOT / args.input).read_text(encoding="utf-8"))
@@ -354,21 +360,26 @@ def build_fixed_retriever(keep_top: int = 4, expand_docs: int = 1, per_doc: int 
 
 
 def run_before_after(save: str = "reports/lab5_before_after.json",
-                     limit: int = 0, variant: str = "expand") -> None:
+                     limit: int = 0, variant: str = "expand", prompt: str = "v2",
+                     baseline: str = "reports/lab4.json") -> None:
     """Part D: same questions, same judges, one variable changed.
 
-    v1 numbers are read from reports/lab4.json rather than re-run, so the
+    v1 numbers are read from `baseline` rather than re-run, so the
     comparison cannot drift on generator temperature or a judge update; only
     v2 is generated here.
+
+    Lab 7 P3 reuses this with prompt="v1" and baseline = the Lab 5 v2 rows
+    re-judged under the corrected rubric: same retriever, same judges, so the
+    only variable is the prompt wording.
     """
     import statistics as _st
 
     from aip.cost import Budget
     from aip.retrieval import format_context
     from labs.lab4.evaluate import _mean, _p95, judge_correctness, judge_faithfulness
-    from labs.lab4.rag import answer_question
+    from labs.lab4.rag import PROMPTS, answer_question
 
-    v1_rows = json.loads((ROOT / "reports/lab4.json").read_text(encoding="utf-8"))["rows"]
+    v1_rows = json.loads((ROOT / baseline).read_text(encoding="utf-8"))["rows"]
     v1 = {r["id"]: r for r in v1_rows}
     questions = load_questions(include_unanswerable=True)
     if limit:
@@ -380,17 +391,18 @@ def run_before_after(save: str = "reports/lab5_before_after.json",
     #                      Run to find out which of those two numbers decides.
     retriever = (build_fixed_retriever(keep_top=0, expand_docs=1, per_doc=5)
                  if variant == "single" else build_fixed_retriever())
-    print(f"variant: {variant}", flush=True)
+    print(f"variant: {variant}   prompt: {prompt}   baseline: {baseline}", flush=True)
 
     rows = []
     # The v1 baseline is read from a file another lab writes. Fingerprinting it
     # here is what makes "the input changed underneath us" visible: re-judging
     # Lab 4 once took this from 12 failures to 6 with nothing in any log.
-    with runlog("lab5-before-after", variant=variant, limit=limit,
-                v1_input=file_fingerprint(ROOT / "reports/lab4.json")) as _rl, \
+    with runlog("lab5-before-after", variant=variant, limit=limit, prompt=prompt,
+                v1_input=file_fingerprint(ROOT / baseline)) as _rl, \
          Budget(limit_usd=1.00, label="lab5-v2") as b:
         for q in questions:
-            a = answer_question(q["question"], retriever, k=12, final_k=6, tier="SMALL")
+            a = answer_question(q["question"], retriever, k=12, final_k=6, tier="SMALL",
+                                system=PROMPTS[prompt])
             ctx = format_context(a.hits)
             unanswerable = not q["relevant_docs"] or q["kind"] == "unanswerable"
             rows.append({
@@ -403,7 +415,7 @@ def run_before_after(save: str = "reports/lab5_before_after.json",
                 "faithfulness": judge_faithfulness(a.text, ctx),
                 "correctness": judge_correctness(q["question"], a.text, q["gold_answer"]),
                 "retrieved": [h.doc_id for h in a.hits], "relevant": q["relevant_docs"],
-                "context": ctx,
+                "context": ctx, "prompt": prompt,
             })
             before = v1.get(q["id"], {}).get("correctness")
             after = rows[-1]["correctness"]
