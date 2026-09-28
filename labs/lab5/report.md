@@ -290,3 +290,32 @@ rubric was wrong; by then it had already produced a 12-failure backlog (6 of whi
 scoring artefacts) and an inflated headline. The lab's rule — hand-label 20 answers and
 compute κ before quoting a judged number — exists to prevent exactly this, and following it
 in the stated order would have produced +0.013 the first time.
+
+---
+
+## Addendum 2 (29 Sep) — the fix under the Lab 7 prompt
+
+Nothing above changes. Lab 7 ships this lab's document-expansion retriever with a new
+answer prompt (v3; see the Lab 4 addendum of the same date for why). The fix itself is
+unchanged: same retriever, `k=12`, `final_k=6`, SMALL. Only the prompt moved, so this
+records what the Lab 5 system looks like as deployed.
+
+| (Lab 5 retriever, corrected rubric, live) | v2 prompt (this lab) | v1 prompt | v3 prompt (ships) |
+|---|---|---|---|
+| correctness | **0.949** | 0.936 | 0.923 |
+| faithfulness | 0.956 | 0.956 | **0.978** |
+| refusal precision | 0.714 | 0.667 | **0.833** |
+| refusal recall | 1.000 | 0.800 | 1.000 |
+| p95 latency | 1,075 ms | 1,864 ms | 1,783 ms |
+
+**The two regressions this report traced to expansion (Q04, Q11) behave differently
+under v3.** Q11 is unchanged (1). Q04 falls further, to 0: v3 states the 36-month waiting
+period, then declares the general period "not stated". The rider paragraph that would
+complete it is the passage expansion pushes out. That is the same mechanism, now
+surfacing as a hedged partial instead of an incomplete answer, and it strengthens the
+case for the D4 next step (adaptive expansion).
+
+**p95 roughly doubled** (1,075 → 1,783–1,864 ms) across both new runs with identical
+retrieval. Prompt length does not explain it: v1 is shorter than v2. It is environment
+latency on a different day and hour. Lab 4 has already recorded the same configuration
+at 2,300 and 8,574 ms an hour apart. Quote latency as a dated magnitude.

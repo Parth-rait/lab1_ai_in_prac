@@ -258,3 +258,44 @@ figures would likely recover Q25, which refused to subtract ₹1,00,000 from ₹
 not implemented here because **Lab 5 solved that case a different way** — giving the
 generator more of the gold document moved Q25 from 0 to 2 without touching the prompt. Two
 fixes for one failure is how you stop being able to attribute either.
+
+---
+
+## Addendum (29 Sep) — "revert to v1" tested, and what replaced it
+
+Everything above is unchanged. This closes the next step stated above ("revert to the v1
+refusal wording and re-measure"), run during Lab 7 on the pipeline that actually ships:
+the Lab 5 retriever (document expansion, `final_k=6`), SMALL generator, corrected rubric.
+Each row changes only the prompt. Baseline = the Lab 5 v2 rows re-judged
+(`reports/lab5_v2_rejudged.json`). All runs are live.
+
+| prompt | correctness | faithfulness | refusal recall | refusal precision | p95 | file |
+|---|---|---|---|---|---|---|
+| v2 (shipped in Lab 4/5) | **0.949** | 0.956 | 1.000 (5/5) | 0.714 (5/7) | 1,075 ms | `lab5_v2_rejudged.json` |
+| v1 (restored verbatim) | 0.936 | 0.956 | 0.800 (4/5) | 0.667 (4/6) | 1,864 ms | `lab7_p3_v1prompt.json` |
+| **v3 (Lab 7)** | 0.923 | **0.978** | **1.000** (5/5) | **0.833** (5/6) | 1,783 ms | `lab7_p3_v3prompt.json` |
+
+**v1 did not hold up.** Its 0.833 was measured on the Lab 4 retriever and did not
+transfer. On Q40 the model refused but appended "…regarding the specific phone number
+[3][4]". v1 lacks v2's "do not append a topic / do not attach a citation" rule, so
+exact-match detection missed the refusal, and recall fell to 4/5. v1's own partial-answer
+clause also turned Q45 (LASIK, answerable) into a partial refusal.
+
+**The actual cause of low precision, in v1 and v2 alike:** both prompts end a partial
+answer with the exact refusal sentence, so every correct partial answer to an answerable
+question counted as a false refusal. **v3** ends partials with "The sources do not state …",
+keeps the refusal sentence for "the sources say nothing", and forbids answering a
+different quantity (the Q36 premium/sum-insured trap, which v3 still refuses). The shape
+comes from a classmate's Lab 4 prompt that measured precision 1.000 on the same golden set.
+
+**Read this honestly:**
+- Part of the gain is **definitional**. Partials are no longer counted as refusals. v3
+  produced 6 partial declines (Q04, Q20, Q23, Q26, Q32, Q45), all on answerable
+  questions, now scored by correctness instead. Both definitions are reported from here on.
+- It **cost correctness** −0.026 (≈ 1 question net): Q04, Q20, Q45 hedged into partials
+  that lost points, and Q29 recovered. Faithfulness rose (+0.022).
+- n = 5 unanswerable, so precision moves ~0.12 per case. 0.714 → 0.833 is **one question**
+  (Q23 went from a refusal to a correct partial). Q44 is still a false refusal (retrieval).
+
+v3 was chosen by a rule written **before** the run (precision ≥ 0.75, recall ≥ 0.80,
+correctness ≥ v2 − 1 SE = 0.919, no substitution), not after seeing it.
