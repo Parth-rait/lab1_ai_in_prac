@@ -2,7 +2,7 @@
 .venv/
 __pycache__/
 *.pyc
-.aip_cache/
+# .aip_cache/ is committed: CI replays it offline (AIP_OFFLINE=1) for the Lab 7 gate.
 .aip_traces/
 
 # Regenerable artefacts, deliberately not committed.
