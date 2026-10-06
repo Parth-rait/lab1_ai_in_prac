@@ -1,0 +1,43 @@
+# Packages ONLY the `aip` toolkit so other projects can depend on it from git:
+#
+#   pip install "aip @ git+https://github.com/Parth-rait/lab1_ai_in_prac.git@aip-v1.0.0"
+#   pip install "aip[retrieval] @ git+https://github.com/Parth-rait/lab1_ai_in_prac.git@aip-v1.0.0"
+#
+# The labs (labs/, scripts/, tests/) are not part of the package, and this
+# file changes nothing about how they run here: `make`, `pytest` and
+# `python -m labs...` keep working from the repo root as before.
+#
+# aip resolves AIP_CACHE_DIR / AIP_TRACE_DIR relative to its own location
+# when they are unset. An installed copy would write into site-packages, so
+# a project that installs aip must set both before its first `import aip`.
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aip"
+version = "1.0.0"   # keep in step with aip/__init__.py __version__
+description = "AI in Practice I shared toolkit: LLM client, cache, tracing, cost, guards, retrieval, RAG, evals"
+requires-python = ">=3.11,<3.15"
+# Only what `import aip` needs. Retrieval backends are imported lazily
+# inside the functions that use them, so they are an extra.
+dependencies = [
+    "litellm>=1.55.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.9.0",
+    "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+retrieval = [
+    "rank-bm25>=0.2.2",
+    "sentence-transformers>=3.3.0",
+    "chromadb>=0.5.20",
+]
+
+[tool.setuptools]
+packages = ["aip"]
+
+[tool.setuptools.package-data]
+aip = ["README.md"]

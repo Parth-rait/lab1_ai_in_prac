@@ -12,3 +12,6 @@ __pycache__/
 .chroma/
 data/corpus_scaled/
 .DS_Store
+
+build/
+*.egg-info/
